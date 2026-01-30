@@ -17,10 +17,11 @@ from whrb_archive.services.archive_service import (
 
 def test_process_hourly_entries_missing_playlist():
     config = load_config()
+    program_dt = datetime(2026, 1, 1, 0, 0)
     entry = HourlyEntry(
         file_name="2026_01_01_00",
         program_name="Missing",
-        program_datetime="2026_01_01_12_00_AM",
+        program_datetime=program_dt,
     )
     with tempfile.TemporaryDirectory() as temp_dir:
         output_dir = os.path.join(temp_dir, "out")
@@ -39,17 +40,20 @@ def test_process_hourly_entries_missing_playlist():
                 config=config,
             )
         output_file = os.path.join(
-            output_dir, "Missing", "Missing_2026_01_01_12_00_AM.mp3"
+            output_dir,
+            "Missing",
+            f"Missing_{program_dt.strftime('%Y_%m_%d_%I_%M_%p')}.mp3",
         )
         assert not os.path.exists(output_file)
 
 
 def test_process_hourly_entries_no_segments():
     config = load_config()
+    program_dt = datetime(2026, 1, 1, 0, 0)
     entry = HourlyEntry(
         file_name="2026_01_01_00",
         program_name="NoSegments",
-        program_datetime="2026_01_01_12_00_AM",
+        program_datetime=program_dt,
     )
     with tempfile.TemporaryDirectory() as temp_dir:
         output_dir = os.path.join(temp_dir, "out")
@@ -74,7 +78,9 @@ def test_process_hourly_entries_no_segments():
                 config=config,
             )
         output_file = os.path.join(
-            output_dir, "NoSegments", "NoSegments_2026_01_01_12_00_AM.mp3"
+            output_dir,
+            "NoSegments",
+            f"NoSegments_{program_dt.strftime('%Y_%m_%d_%I_%M_%p')}.mp3",
         )
         assert not os.path.exists(output_file)
 
@@ -82,10 +88,11 @@ def test_process_hourly_entries_no_segments():
 def test_process_hourly_entries_transcode_failure_cleanup():
     base_config = load_config()
     config = replace(base_config, archive_extension="mp3")
+    program_dt = datetime(2026, 1, 1, 0, 0)
     entry = HourlyEntry(
         file_name="2026_01_01_00",
         program_name="TranscodeFail",
-        program_datetime="2026_01_01_12_00_AM",
+        program_datetime=program_dt,
     )
     with tempfile.TemporaryDirectory() as temp_dir:
         output_dir = os.path.join(temp_dir, "out")
@@ -151,10 +158,11 @@ def test_process_show_block_no_hours_cleans_temp_file():
 def test_process_hourly_entries_saves_playlist_file():
     base_config = load_config()
     config = replace(base_config, archive_extension="ts", save_playlist_file=True)
+    program_dt = datetime(2026, 1, 1, 0, 0)
     entry = HourlyEntry(
         file_name="2026_01_01_00",
         program_name="Playlist",
-        program_datetime="2026_01_01_12_00_AM",
+        program_datetime=program_dt,
     )
     with tempfile.TemporaryDirectory() as temp_dir:
         output_dir = os.path.join(temp_dir, "out")
@@ -190,17 +198,20 @@ def test_process_hourly_entries_saves_playlist_file():
                 config=config,
             )
         playlist_path = os.path.join(
-            output_dir, "Playlist", "Playlist_2026_01_01_12_00_AM_playlist.m3u8"
+            output_dir,
+            "Playlist",
+            f"Playlist_{program_dt.strftime('%Y_%m_%d_%I_%M_%p')}_playlist.m3u8",
         )
         assert os.path.exists(playlist_path)
 
 
 def test_process_hourly_entries_download_failure():
     config = load_config()
+    program_dt = datetime(2026, 1, 1, 0, 0)
     entry = HourlyEntry(
         file_name="2026_01_01_00",
         program_name="DownloadFail",
-        program_datetime="2026_01_01_12_00_AM",
+        program_datetime=program_dt,
     )
     with tempfile.TemporaryDirectory() as temp_dir:
         output_dir = os.path.join(temp_dir, "out")
@@ -238,10 +249,11 @@ def test_process_hourly_entries_download_failure():
 def test_process_hourly_entries_mp3_success_cleanup():
     base_config = load_config()
     config = replace(base_config, archive_extension="mp3")
+    program_dt = datetime(2026, 1, 1, 0, 0)
     entry = HourlyEntry(
         file_name="2026_01_01_00",
         program_name="Mp3Success",
-        program_datetime="2026_01_01_12_00_AM",
+        program_datetime=program_dt,
     )
     with tempfile.TemporaryDirectory() as temp_dir:
         output_dir = os.path.join(temp_dir, "out")
@@ -286,10 +298,14 @@ def test_process_hourly_entries_mp3_success_cleanup():
                 config=config,
             )
         mp3_path = os.path.join(
-            output_dir, "Mp3Success", "Mp3Success_2026_01_01_12_00_AM.mp3"
+            output_dir,
+            "Mp3Success",
+            f"Mp3Success_{program_dt.strftime('%Y_%m_%d_%I_%M_%p')}.mp3",
         )
         ts_path = os.path.join(
-            output_dir, "Mp3Success", "Mp3Success_2026_01_01_12_00_AM.ts"
+            output_dir,
+            "Mp3Success",
+            f"Mp3Success_{program_dt.strftime('%Y_%m_%d_%I_%M_%p')}.ts",
         )
         assert os.path.exists(mp3_path)
         assert not os.path.exists(ts_path)

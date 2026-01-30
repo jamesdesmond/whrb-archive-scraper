@@ -151,7 +151,7 @@ def build_hourly_entries(
         hour_utc = base_hour - timedelta(hours=offset)
         hour_local = hour_utc.astimezone(timezone_local)
         file_name = hour_utc.strftime("%Y_%m_%d_%H")
-        program_datetime = hour_local.strftime("%Y_%m_%d_%I_%M_%p")
+        program_datetime = hour_local
         program_name = sanitize_filename(find_show_for_hour(hour_local, schedule))
         entries.append(
             HourlyEntry(

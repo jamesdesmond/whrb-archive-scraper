@@ -100,12 +100,8 @@ Lint check:
 ```bash
 make lint
 
-Ruff lint (direct):
-
-```bash
 ruff check .
-```
-```
+
 
 Install developer dependencies:
 

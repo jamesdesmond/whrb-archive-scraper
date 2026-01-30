@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+- Replace assert-true tests with explicit exception assertions
+- Clean up calendar and HLS retry tests
+
 ## 0.1.2
 - Write MP3 transcodes to .part files and rename on success
 - Clean up stale partial transcodes before processing

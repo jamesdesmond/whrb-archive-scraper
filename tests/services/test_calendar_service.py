@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 import requests
 import responses
+import pytest
 from requests import RequestException
 
 from whrb_archive.config import load_config
@@ -144,9 +145,7 @@ def test_fetch_program_schedule_calendar_retry_error():
             body=RequestException("fail"),
         )
         with tempfile.TemporaryDirectory() as temp_dir:
-            try:
+            with pytest.raises(RequestException):
                 fetch_program_schedule_calendar(
                     session, temp_dir, offline=False, config=config
                 )
-            except RequestException:
-                assert True

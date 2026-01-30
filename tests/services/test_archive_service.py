@@ -46,10 +46,11 @@ def test_fetch_and_process_whrb_archive_dry_run():
 def test_process_hourly_entries_skips_existing_file():
     base_config = load_config()
     config = replace(base_config, archive_extension="ts")
+    program_dt = datetime(2026, 1, 1, 0, 0)
     entry = HourlyEntry(
         file_name="2026_01_01_00",
         program_name="Test Show",
-        program_datetime="2026_01_01_12_00_AM",
+        program_datetime=program_dt,
     )
     with tempfile.TemporaryDirectory() as temp_dir:
         output_dir = os.path.join(temp_dir, "out")
@@ -57,7 +58,9 @@ def test_process_hourly_entries_skips_existing_file():
         os.makedirs(output_dir, exist_ok=True)
         directory = os.path.join(output_dir, entry.program_name)
         os.makedirs(directory, exist_ok=True)
-        output_filename = f"{entry.program_name}_{entry.program_datetime}.ts"
+        output_filename = (
+            f"{entry.program_name}_{program_dt.strftime('%Y_%m_%d_%I_%M_%p')}.ts"
+        )
         output_path = os.path.join(directory, output_filename)
         with open(output_path, "wb") as payload:
             payload.write(b"done")
@@ -147,10 +150,11 @@ def test_process_show_block_dry_run_creates_no_file():
 def test_process_hourly_entries_downloads_segments():
     base_config = load_config()
     config = replace(base_config, archive_extension="ts")
+    program_dt = datetime(2026, 1, 1, 0, 0)
     entry = HourlyEntry(
         file_name="2026_01_01_00",
         program_name="Test Show",
-        program_datetime="2026_01_01_12_00_AM",
+        program_datetime=program_dt,
     )
     with tempfile.TemporaryDirectory() as temp_dir:
         output_dir = os.path.join(temp_dir, "out")
@@ -186,7 +190,9 @@ def test_process_hourly_entries_downloads_segments():
                 config=config,
             )
         output_file = os.path.join(
-            output_dir, "Test Show", "Test Show_2026_01_01_12_00_AM.ts"
+            output_dir,
+            "Test Show",
+            f"Test Show_{program_dt.strftime('%Y_%m_%d_%I_%M_%p')}.ts",
         )
         assert os.path.exists(output_file)
 

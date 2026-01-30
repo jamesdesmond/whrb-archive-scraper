@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import TypeAlias
 
 
 @dataclass(frozen=True)
@@ -34,13 +35,7 @@ class ShowBlock:
     end: datetime
 
 
-@dataclass(frozen=True)
-class ScheduleEntry:
-    """Normalized schedule entry from the WHRB schedule API."""
-
-    title: str
-    start: datetime
-    end: datetime
+ScheduleEntry: TypeAlias = ShowBlock
 
 
 @dataclass(frozen=True)
@@ -49,4 +44,4 @@ class HourlyEntry:
 
     file_name: str
     program_name: str
-    program_datetime: str
+    program_datetime: datetime

@@ -5,6 +5,7 @@ import tempfile
 
 import requests
 import responses
+import pytest
 from requests import RequestException
 
 from whrb_archive.config import load_config
@@ -40,13 +41,16 @@ def test_fetch_playlist_retry_error():
     def raise_error(*args, **kwargs):
         raise RequestException("boom")
 
-    with mock.patch.object(session, "get", side_effect=raise_error):
-        try:
-            fetch_playlist(
-                "2026_01_01_00", session, "/tmp", offline=False, config=config
-            )
-        except RequestException:
-            assert True
+    with tempfile.TemporaryDirectory() as temp_dir:
+        with mock.patch.object(session, "get", side_effect=raise_error):
+            with pytest.raises(RequestException):
+                fetch_playlist(
+                    "2026_01_01_00",
+                    session,
+                    temp_dir,
+                    offline=False,
+                    config=config,
+                )
 
 
 def test_fetch_playlist_writes_cache():

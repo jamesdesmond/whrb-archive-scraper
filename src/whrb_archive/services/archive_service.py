@@ -135,7 +135,7 @@ def _process_hourly_entries(
     """
     for entry in entries:
         program_name = entry.program_name
-        program_datetime = entry.program_datetime
+        program_datetime = entry.program_datetime.strftime("%Y_%m_%d_%I_%M_%p")
         file_name = entry.file_name
 
         directory = os.path.join(output_dir, program_name)
