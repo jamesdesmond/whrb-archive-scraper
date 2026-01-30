@@ -69,6 +69,29 @@ Optional environment variables:
 
 ## Developer notes
 
+### Code formatting
+
+This project uses [black](https://github.com/psf/black) for code formatting. Format all Python files before committing:
+
+```bash
+black .
+```
+
+Set up a pre-commit hook to automatically format code:
+
+```bash
+cat > .git/hooks/pre-commit << 'EOF'
+#!/bin/bash
+black --check . || {
+    echo "Code not formatted. Running black..."
+    black .
+    echo "Files formatted. Please review changes and commit again."
+    exit 1
+}
+EOF
+chmod +x .git/hooks/pre-commit
+```
+
 ### Caching
 
 The script caches schedule data and audio segments to avoid redundant downloads during testing and development. Cached data is reused automatically.

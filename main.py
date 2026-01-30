@@ -18,7 +18,6 @@ from zoneinfo import ZoneInfo
 
 import config
 
-
 logger = logging.getLogger("whrb-archive")
 
 
@@ -122,8 +121,7 @@ def extract_calendar_ical_url(html_text: str) -> Optional[str]:
     if not calendar_id:
         return None
     return (
-        "https://calendar.google.com/calendar/ical/"
-        f"{calendar_id}/public/basic.ics"
+        "https://calendar.google.com/calendar/ical/" f"{calendar_id}/public/basic.ics"
     )
 
 
@@ -146,7 +144,9 @@ def fetch_program_schedule_calendar(
         timeout=config.request_timeout_seconds,
     )
     if schedule_response.status_code != 200:
-        logger.warning("Program schedule page not available: %s", schedule_response.status_code)
+        logger.warning(
+            "Program schedule page not available: %s", schedule_response.status_code
+        )
         return None
     ical_url = extract_calendar_ical_url(schedule_response.text)
     if not ical_url:
@@ -177,7 +177,9 @@ def expand_calendar_events(
     blocks: List[dict] = []
     seen: set[tuple[str, datetime, datetime]] = set()
     for component in calendar.walk("VEVENT"):
-        summary = sanitize_filename(str(component.get("summary", "Unknown Program")).strip())
+        summary = sanitize_filename(
+            str(component.get("summary", "Unknown Program")).strip()
+        )
         dtstart = ensure_datetime(component.get("dtstart").dt, timezone_local)
         dtend = ensure_datetime(component.get("dtend").dt, timezone_local)
         duration = dtend - dtstart
@@ -394,7 +396,9 @@ def fetch_playlist(
         timeout=config.request_timeout_seconds,
     )
     if response.status_code != 200:
-        logger.warning("Playlist not available: %s (status %s)", playlist_url, response.status_code)
+        logger.warning(
+            "Playlist not available: %s (status %s)", playlist_url, response.status_code
+        )
         return None
     with open(cache_path, "w", encoding="utf-8") as payload:
         payload.write(response.text)
@@ -497,7 +501,9 @@ def save_playlist_file(destination_path: str, playlist_text: str) -> None:
 def transcode_to_mp3(source_path: str, destination_path: str) -> bool:
     ffmpeg_executable = shutil.which(config.ffmpeg_path)
     if not ffmpeg_executable:
-        logger.error("ffmpeg not found. Install ffmpeg or set ffmpeg_path in config.py.")
+        logger.error(
+            "ffmpeg not found. Install ffmpeg or set ffmpeg_path in config.py."
+        )
         return False
     command = [
         ffmpeg_executable,
@@ -576,12 +582,18 @@ def fetch_and_process_whrb_archive(
             directory = os.path.join(output_dir, program_name)
             ensure_directory(directory)
 
-            output_filename = f"{program_name}_{program_datetime}.{config.archive_extension}"
+            output_filename = (
+                f"{program_name}_{program_datetime}.{config.archive_extension}"
+            )
             output_path = os.path.join(directory, output_filename)
             temp_ts_path = output_path
             if config.archive_extension.lower() != "ts":
-                temp_ts_path = os.path.join(directory, f"{program_name}_{program_datetime}.ts")
-            playlist_path = os.path.join(directory, f"{program_name}_{program_datetime}_playlist.m3u8")
+                temp_ts_path = os.path.join(
+                    directory, f"{program_name}_{program_datetime}.ts"
+                )
+            playlist_path = os.path.join(
+                directory, f"{program_name}_{program_datetime}_playlist.m3u8"
+            )
 
             if os.path.exists(output_path):
                 logger.info("Skipping existing archive: %s", output_path)
@@ -602,8 +614,12 @@ def fetch_and_process_whrb_archive(
                 continue
 
             cache_segments_dir = os.path.join(cache_dir, file_name, "segments")
-            logger.info("Downloading %s segments for %s", len(segment_urls), temp_ts_path)
-            success = download_segments(segment_urls, temp_ts_path, cache_segments_dir, session, offline)
+            logger.info(
+                "Downloading %s segments for %s", len(segment_urls), temp_ts_path
+            )
+            success = download_segments(
+                segment_urls, temp_ts_path, cache_segments_dir, session, offline
+            )
             if not success:
                 logger.warning("Incomplete download for %s", output_path)
                 continue
@@ -642,7 +658,9 @@ def fetch_and_process_whrb_archive(
         temp_ts_path = output_path
         if config.archive_extension.lower() != "ts":
             temp_ts_path = os.path.join(directory, f"{program_name}_{start_label}.ts")
-        playlist_path = os.path.join(directory, f"{program_name}_{start_label}_playlist.m3u8")
+        playlist_path = os.path.join(
+            directory, f"{program_name}_{start_label}_playlist.m3u8"
+        )
 
         if os.path.exists(output_path):
             logger.info("Skipping existing archive: %s", output_path)
@@ -689,8 +707,12 @@ def fetch_and_process_whrb_archive(
                 if not segment_urls:
                     continue
                 cache_segments_dir = os.path.join(cache_dir, file_name, "segments")
-                logger.info("Appending %s segments for %s", len(segment_urls), temp_ts_path)
-                if not append_segments(segment_urls, output_file, cache_segments_dir, session, offline):
+                logger.info(
+                    "Appending %s segments for %s", len(segment_urls), temp_ts_path
+                )
+                if not append_segments(
+                    segment_urls, output_file, cache_segments_dir, session, offline
+                ):
                     logger.warning("Incomplete download for %s", output_path)
                     continue
                 has_content = True
@@ -717,13 +739,29 @@ def fetch_and_process_whrb_archive(
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Download WHRB stream archive segments.")
-    parser.add_argument("--days", type=int, default=config.archive_days, help="Days of archive to scan.")
-    parser.add_argument("--limit", type=int, default=None, help="Limit number of hours to download.")
-    parser.add_argument("--dry-run", action="store_true", help="Only log what would be downloaded.")
-    parser.add_argument("--output-dir", default=config.output_dir, help="Directory for saved recordings.")
-    parser.add_argument("--cache-dir", default=config.cache_dir, help="Directory for cached requests.")
-    parser.add_argument("--offline", action="store_true", help="Use cached data only, no network.")
+    parser = argparse.ArgumentParser(
+        description="Download WHRB stream archive segments."
+    )
+    parser.add_argument(
+        "--days", type=int, default=config.archive_days, help="Days of archive to scan."
+    )
+    parser.add_argument(
+        "--limit", type=int, default=None, help="Limit number of hours to download."
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Only log what would be downloaded."
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=config.output_dir,
+        help="Directory for saved recordings.",
+    )
+    parser.add_argument(
+        "--cache-dir", default=config.cache_dir, help="Directory for cached requests."
+    )
+    parser.add_argument(
+        "--offline", action="store_true", help="Use cached data only, no network."
+    )
     return parser.parse_args()
 
 

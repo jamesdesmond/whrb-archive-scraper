@@ -28,7 +28,9 @@ class ArchiveTests(unittest.TestCase):
 
     def test_build_hourly_entries_count(self):
         schedule = []
-        entries = main.build_hourly_entries(1, schedule, now_utc=datetime(2026, 1, 29, 12, 0, tzinfo=timezone.utc))
+        entries = main.build_hourly_entries(
+            1, schedule, now_utc=datetime(2026, 1, 29, 12, 0, tzinfo=timezone.utc)
+        )
         self.assertEqual(len(entries), 24)
 
     def test_parse_playlist(self):
@@ -38,7 +40,9 @@ class ArchiveTests(unittest.TestCase):
 #EXTINF:10,
 001.ts
 """
-        urls = main.parse_playlist(playlist, "https://stream.whrb.org/archive/2026_01_27_00/")
+        urls = main.parse_playlist(
+            playlist, "https://stream.whrb.org/archive/2026_01_27_00/"
+        )
         self.assertEqual(
             urls,
             [
@@ -67,9 +71,7 @@ class ArchiveTests(unittest.TestCase):
         self.assertEqual(len(hours), 3)
 
     def test_extract_calendar_ical_url(self):
-        html = (
-            "<iframe src=\"https://www.google.com/calendar/embed?showTitle=0&src=test%40group.calendar.google.com&ctz=America%2FNew_York\"></iframe>"
-        )
+        html = '<iframe src="https://www.google.com/calendar/embed?showTitle=0&src=test%40group.calendar.google.com&ctz=America%2FNew_York"></iframe>'
         ical = main.extract_calendar_ical_url(html)
         self.assertEqual(
             ical,
@@ -84,7 +86,9 @@ class ArchiveTests(unittest.TestCase):
             {"title": "Afternoon Concert", "start": start, "end": end},
             {"title": "Afternoon Concert", "start": start, "end": end},
         ]
-        results = main.build_show_blocks(1, blocks, now_utc=datetime(2026, 1, 30, 20, 0, tzinfo=timezone.utc))
+        results = main.build_show_blocks(
+            1, blocks, now_utc=datetime(2026, 1, 30, 20, 0, tzinfo=timezone.utc)
+        )
         self.assertEqual(len(results), 1)
 
     def test_build_show_blocks_skips_partial(self):
