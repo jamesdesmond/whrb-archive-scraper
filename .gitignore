@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+*.log
+
+# Virtual environments
+.venv/
+.venv*/
+venv/
+
+# Local config
+.env
+.env.*
+
+# Cache and recordings
+cache/
+recordings/
+
+# OS/editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Temp files
+*.tmp
+*.temp
