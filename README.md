@@ -1,44 +1,36 @@
 # WHRB Stream Archive Downloader
 
-Download WHRB's two-week stream archive into per-program folders. The script groups multi-hour shows into a single file, caches HLS segments locally, and transcodes to MP3 by default.
+Automatically download and archive WHRB radio programs. Run this script daily to capture all available shows from WHRB's public archive (limited to the last 14 days by FCC regulation) and save them as MP3 files organized by program name.
 
-## Features
+## What you get
 
-- Scrapes the WHRB program schedule page to discover the Google Calendar feed.
-- Builds show blocks for the last 14 days (configurable).
-- **Skips in-progress shows** and any blocks that would be partial.
-- Groups hourly HLS archives into a single file per show block.
-- Caches schedules, playlists, and segments to minimize repeat downloads.
-- Optional Discord notification when an MP3 is successfully created.
+- **Complete episode recordings** organized in per-program folders
+- **Automatic multi-hour show handling** — long programs are saved as a single file
+- **Smart skip logic** — already-downloaded shows and in-progress broadcasts are skipped
+- **MP3 output** ready for playback or archival
+- **Optional Discord notifications** when new recordings are saved
 
-## Output layout
+## How it works
 
-Each show block is saved as:
+The script runs on-demand or via a daily cron job / scheduled task. Each run:
 
+1. Checks WHRB's program schedule for the last 14 days
+2. Downloads any complete shows not already saved
+3. Skips in-progress shows (they'll be captured on the next run)
+4. Saves recordings as `{program_name}/{program_name}_{date_time}.mp3`
+
+## Requirements
+
+- Python 3.10+
+- `ffmpeg` installed and in PATH (or set `FFMPEG_PATH` environment variable)
+
+## Quick start
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
 ```
-{output_dir}/{program_name}/{program_name}_{program_start_local}.mp3
-```
-
-Playlists are **not** saved by default (`save_playlist_file = False`).
-
-## Configuration
-
-Edit `config.py` as needed:
-
-- `output_dir`: destination for recordings
-- `cache_dir`: cache for schedule/playlists/segments
-- `archive_days`: number of days to scan (default 14)
-- `archive_extension`: default `mp3`
-- `ffmpeg_path`: ffmpeg executable (override with `FFMPEG_PATH`)
-- `program_schedule_url`: schedule page used to locate the calendar feed
-- `station_timezone`: used for timestamps
-
-Environment variables:
-
-- `FFMPEG_PATH`: overrides `ffmpeg_path`
-- `DISCORD_WEBHOOK_URL`: send a Discord message **only when an MP3 is created**
-
-## Usage
 
 Run the downloader:
 
@@ -46,29 +38,48 @@ Run the downloader:
 python main.py
 ```
 
-Limit or preview:
-
-```bash
-python main.py --limit 3 --dry-run
-```
-
-### Caching & offline runs
-
-The downloader caches schedule data, playlists, and HLS segments in `cache_dir`. If cached data exists, it will be reused automatically.
-
-Offline mode uses cached data only:
-
-```bash
-python main.py --offline --limit 3
-```
-
-Override output or cache directories:
+Configure output and cache directories:
 
 ```bash
 python main.py --output-dir ./recordings --cache-dir ./cache
 ```
 
-## Tests
+Set up for scheduled daily runs:
+
+```bash
+#!/bin/bash
+export DISCORD_WEBHOOK_URL="your_webhook_url_here"  # optional
+
+cd /path/to/whrb-archive-scraper
+python main.py --output-dir ./recordings --cache-dir ./cache
+```
+
+## Configuration
+
+Edit `config.py` or use command-line arguments:
+
+- `--output-dir`: where to save recordings (default: `./recordings`)
+- `--cache-dir`: where to store temporary data (default: `./cache`)
+- `--days`: how many days to scan (default: 14, the FCC maximum)
+
+Optional environment variables:
+
+- `FFMPEG_PATH`: path to ffmpeg executable
+- `DISCORD_WEBHOOK_URL`: receive a notification when each MP3 is saved
+
+## Developer notes
+
+### Caching
+
+The script caches schedule data and audio segments to avoid redundant downloads during testing and development. Cached data is reused automatically.
+
+Run in offline mode (uses only cached data):
+
+```bash
+python main.py --offline
+```
+
+### Tests
 
 ```bash
 python -m unittest
