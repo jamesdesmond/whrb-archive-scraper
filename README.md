@@ -77,6 +77,14 @@ This project uses [black](https://github.com/psf/black) for code formatting. For
 black .
 ```
 
+To enable the pre-commit hook (recommended):
+
+```bash
+git config core.hooksPath .githooks
+```
+
+This will automatically format code before each commit.
+
 ### Caching
 
 The script caches schedule data and audio segments to avoid redundant downloads during testing and development. Cached data is reused automatically.
