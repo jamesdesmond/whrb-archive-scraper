@@ -10,3 +10,8 @@ black --check . || {
     echo "Files formatted. Please review changes and commit again."
     exit 1
 }
+
+ruff check . || {
+    echo "Ruff found issues. Fix them and commit again."
+    exit 1
+}
