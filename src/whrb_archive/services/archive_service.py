@@ -154,6 +154,13 @@ def _process_hourly_entries(
             directory, f"{program_name}_{program_datetime}_playlist.m3u8"
         )
 
+        temp_output_path = None
+        if config.archive_extension.lower() == "mp3":
+            temp_output_path = f"{output_path}.part"
+            if os.path.exists(temp_output_path):
+                logger.warning("Removing stale partial output: %s", temp_output_path)
+                os.remove(temp_output_path)
+
         if os.path.exists(output_path):
             logger.info("Skipping existing archive: %s", output_path)
             continue
@@ -182,12 +189,17 @@ def _process_hourly_entries(
             continue
         if config.archive_extension.lower() == "mp3":
             logger.info("Transcoding to MP3: %s", output_path)
-            if not transcode_to_mp3(temp_ts_path, output_path, config):
+            target_path = temp_output_path or output_path
+            if not transcode_to_mp3(temp_ts_path, target_path, config):
                 if temp_ts_path != output_path and os.path.exists(temp_ts_path):
                     os.remove(temp_ts_path)
+                if temp_output_path and os.path.exists(temp_output_path):
+                    os.remove(temp_output_path)
                 if os.path.exists(output_path):
                     os.remove(output_path)
                 continue
+            if temp_output_path:
+                os.replace(temp_output_path, output_path)
             if temp_ts_path != output_path:
                 os.remove(temp_ts_path)
             notify_discord_on_success(output_path, config)
@@ -235,6 +247,13 @@ def _process_show_block(
     playlist_path = os.path.join(
         directory, f"{program_name}_{start_label}_playlist.m3u8"
     )
+
+    temp_output_path = None
+    if config.archive_extension.lower() == "mp3":
+        temp_output_path = f"{output_path}.part"
+        if os.path.exists(temp_output_path):
+            logger.warning("Removing stale partial output: %s", temp_output_path)
+            os.remove(temp_output_path)
 
     if os.path.exists(output_path):
         logger.info("Skipping existing archive: %s", output_path)
@@ -296,12 +315,17 @@ def _process_show_block(
 
     if config.archive_extension.lower() == "mp3":
         logger.info("Transcoding to MP3: %s", output_path)
-        if not transcode_to_mp3(temp_ts_path, output_path, config):
+        target_path = temp_output_path or output_path
+        if not transcode_to_mp3(temp_ts_path, target_path, config):
             if temp_ts_path != output_path and os.path.exists(temp_ts_path):
                 os.remove(temp_ts_path)
+            if temp_output_path and os.path.exists(temp_output_path):
+                os.remove(temp_output_path)
             if os.path.exists(output_path):
                 os.remove(output_path)
             return
+        if temp_output_path:
+            os.replace(temp_output_path, output_path)
         if temp_ts_path != output_path:
             os.remove(temp_ts_path)
         notify_discord_on_success(output_path, config)
