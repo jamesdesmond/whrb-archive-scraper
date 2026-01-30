@@ -11,7 +11,6 @@ from urllib.parse import urljoin, urlparse
 
 import requests
 
-from ..errors.exceptions import DownloadError
 from ..models.archive import ArchiveConfig
 from ..utils.filesystem import ensure_directory
 from ..utils.retry import RetryConfig, retry

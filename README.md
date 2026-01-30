@@ -83,10 +83,28 @@ Optional environment variables:
 
 ### Code formatting
 
-This project uses [black](https://github.com/psf/black) for code formatting. Format all Python files before committing:
+This project uses [black](https://github.com/psf/black) for code formatting and [ruff](https://github.com/astral-sh/ruff) for linting. Format all Python files before committing:
 
 ```bash
 black .
+```
+
+Makefile shortcuts:
+
+```bash
+make format
+```
+
+Lint check:
+
+```bash
+make lint
+
+Ruff lint (direct):
+
+```bash
+ruff check .
+```
 ```
 
 Install developer dependencies:
@@ -119,6 +137,12 @@ Run in offline mode (uses only cached data):
 python main.py --offline
 ```
 
+### Troubleshooting
+
+- **ffmpeg not found**: install ffmpeg and ensure it's on your PATH, or set `FFMPEG_PATH`.
+- **Schedule fetch fails**: delete `cache/program_schedule.ics` to force refresh.
+- **Slow downloads**: check network bandwidth and consider reducing `--days`.
+
 ### Tests
 
 Run the test suite:
@@ -127,10 +151,22 @@ Run the test suite:
 python -m pytest
 ```
 
+Makefile shortcut:
+
+```bash
+make test
+```
+
 Run tests with coverage:
 
 ```bash
-python -m pytest --cov=whrb_archive --cov-report=term-missing
+python -m pytest --cov=src/whrb_archive --cov-report=term-missing
+```
+
+Makefile shortcut:
+
+```bash
+make coverage
 ```
 ## CLI
 
@@ -139,3 +175,7 @@ After installing the package, you can run the CLI directly:
 ```bash
 whrb-archive --limit 1 --dry-run
 ```
+
+## Changelog
+
+See `CHANGELOG.md` for release notes.

@@ -1,7 +1,7 @@
 import os
 import tempfile
 from dataclasses import replace
-from datetime import datetime, timezone
+from datetime import datetime
 from unittest import mock
 from zoneinfo import ZoneInfo
 

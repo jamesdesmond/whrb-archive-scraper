@@ -1,5 +1,4 @@
 import sys
-from dataclasses import replace
 from unittest import mock
 
 from whrb_archive import cli

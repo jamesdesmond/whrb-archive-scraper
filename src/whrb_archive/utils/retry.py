@@ -40,7 +40,7 @@ def retry(
     while True:
         try:
             return operation()
-        except tuple(retry_on) as exc:  # type: ignore[arg-type]
+        except tuple(retry_on):  # type: ignore[arg-type]
             attempt += 1
             if attempt >= config.attempts:
                 raise

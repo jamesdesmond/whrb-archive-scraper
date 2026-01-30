@@ -13,7 +13,6 @@ from icalendar import Calendar
 from dateutil.rrule import rruleset, rrulestr
 from zoneinfo import ZoneInfo
 
-from ..errors.exceptions import ScheduleError
 from ..models.archive import ArchiveConfig, ShowBlock
 from ..utils.datetime_utils import ensure_datetime
 from ..utils.filesystem import ensure_directory, sanitize_filename
