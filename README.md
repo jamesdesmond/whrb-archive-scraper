@@ -102,6 +102,7 @@ make lint
 
 ruff check .
 
+```
 
 Install developer dependencies:
 
