@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.5
+- Exit with non-zero status when ffmpeg/transcoding fails
+- Improve CLI error messaging for archive failures
+- Ensure ffmpeg outputs with .mp3.part specify mp3 format
+
 ## 0.1.4
 - Make cache directory optional with offline warnings in CLI/runtime
 - Increase coverage for error modules

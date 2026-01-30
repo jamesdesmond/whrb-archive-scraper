@@ -11,6 +11,7 @@ from typing import Optional
 import requests
 from zoneinfo import ZoneInfo
 
+from ..errors import DownloadError
 from ..models.archive import ArchiveConfig, HourlyEntry, ShowBlock
 from ..notifications.discord import notify_discord_on_success
 from ..services.calendar_service import (
@@ -215,7 +216,7 @@ def _process_hourly_entries(
                     os.remove(temp_output_path)
                 if os.path.exists(output_path):
                     os.remove(output_path)
-                continue
+                raise DownloadError(f"ffmpeg failed for {temp_ts_path}")
             if temp_output_path:
                 os.replace(temp_output_path, output_path)
             if temp_ts_path != output_path:
@@ -341,7 +342,7 @@ def _process_show_block(
                 os.remove(temp_output_path)
             if os.path.exists(output_path):
                 os.remove(output_path)
-            return
+            raise DownloadError(f"ffmpeg failed for {temp_ts_path}")
         if temp_output_path:
             os.replace(temp_output_path, output_path)
         if temp_ts_path != output_path:

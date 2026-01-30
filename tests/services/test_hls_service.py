@@ -169,3 +169,30 @@ def test_transcode_to_mp3_success():
         ):
             ok = transcode_to_mp3(source, dest, config)
     assert ok is True
+
+
+def test_transcode_to_mp3_part_sets_format():
+    config = load_config()
+    with tempfile.TemporaryDirectory() as temp_dir:
+        source = os.path.join(temp_dir, "input.ts")
+        dest = os.path.join(temp_dir, "output.mp3.part")
+        with open(source, "wb") as payload:
+            payload.write(b"data")
+
+        class FakeProcess:
+            def __init__(self):
+                self.stdout = ["out_time=00:00:01\n"]
+                self.stderr = mock.Mock(read=lambda: "")
+
+            def wait(self):
+                return 0
+
+        with (
+            mock.patch("shutil.which", return_value="ffmpeg"),
+            mock.patch("subprocess.Popen", return_value=FakeProcess()) as popen,
+        ):
+            ok = transcode_to_mp3(source, dest, config)
+    assert ok is True
+    command = popen.call_args[0][0]
+    assert "-f" in command
+    assert "mp3" in command

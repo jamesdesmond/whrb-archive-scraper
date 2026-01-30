@@ -1,7 +1,10 @@
 import sys
 from unittest import mock
 
+import pytest
+
 from whrb_archive import cli
+from whrb_archive.errors import ArchiveError
 from whrb_archive.config import load_config
 
 
@@ -32,3 +35,17 @@ def test_main_warns_when_offline_without_cache(monkeypatch, caplog):
         "Offline mode requested without a cache directory" in message
         for message in caplog.messages
     )
+
+
+def test_main_exits_on_archive_error(monkeypatch, caplog):
+    monkeypatch.setattr(sys, "argv", ["prog"])
+    with (
+        mock.patch(
+            "whrb_archive.cli.fetch_and_process_whrb_archive",
+            side_effect=ArchiveError("ffmpeg failed"),
+        ),
+        pytest.raises(SystemExit) as excinfo,
+    ):
+        cli.main()
+    assert excinfo.value.code == 2
+    assert any("Download failed" in message for message in caplog.messages)

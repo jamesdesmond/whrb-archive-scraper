@@ -184,8 +184,10 @@ def transcode_to_mp3(
         "-progress",
         "pipe:1",
         "-nostats",
-        destination_path,
     ]
+    if not destination_path.lower().endswith(".mp3"):
+        command.extend(["-f", "mp3"])
+    command.append(destination_path)
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,

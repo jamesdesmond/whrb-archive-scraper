@@ -5,8 +5,10 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import sys
 
 from .config import load_config
+from .errors import ArchiveError
 from .services.archive_service import fetch_and_process_whrb_archive
 from .utils.filesystem import ensure_directory
 from .utils.logging_utils import configure_logging
@@ -66,12 +68,16 @@ def main() -> None:
             "Offline mode requested without a cache directory; "
             "downloads will fail without cached data."
         )
-    fetch_and_process_whrb_archive(
-        args.days,
-        args.limit,
-        args.dry_run,
-        output_dir,
-        cache_dir,
-        args.offline,
-        config,
-    )
+    try:
+        fetch_and_process_whrb_archive(
+            args.days,
+            args.limit,
+            args.dry_run,
+            output_dir,
+            cache_dir,
+            args.offline,
+            config,
+        )
+    except ArchiveError as exc:
+        logger.error("Download failed: %s", exc)
+        sys.exit(2)

@@ -138,6 +138,7 @@ python main.py --offline
 
 - **ffmpeg not found**: install ffmpeg and ensure it's on your PATH, or set `FFMPEG_PATH`.
 - **Schedule fetch fails**: delete `<cache_dir>/program_schedule.ics` to force refresh (when caching is enabled).
+- **Transcoding fails**: the CLI exits with a non-zero status; fix ffmpeg errors and rerun.
 - **Slow downloads**: check network bandwidth and consider reducing `--days`.
 
 ### Tests

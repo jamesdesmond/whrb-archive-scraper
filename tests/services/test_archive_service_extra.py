@@ -6,8 +6,10 @@ from unittest import mock
 from zoneinfo import ZoneInfo
 
 import requests
+import pytest
 
 from whrb_archive.config import load_config
+from whrb_archive.errors import DownloadError
 from whrb_archive.models.archive import HourlyEntry, ShowBlock
 from whrb_archive.services.archive_service import (
     _process_hourly_entries,
@@ -115,15 +117,16 @@ def test_process_hourly_entries_transcode_failure_cleanup():
                 return_value=False,
             ),
         ):
-            _process_hourly_entries(
-                [entry],
-                requests.Session(),
-                cache_dir,
-                output_dir,
-                offline=True,
-                dry_run=False,
-                config=config,
-            )
+            with pytest.raises(DownloadError):
+                _process_hourly_entries(
+                    [entry],
+                    requests.Session(),
+                    cache_dir,
+                    output_dir,
+                    offline=True,
+                    dry_run=False,
+                    config=config,
+                )
         output_dir_show = os.path.join(output_dir, "TranscodeFail")
         assert os.path.isdir(output_dir_show)
         assert not any(name.endswith(".mp3") for name in os.listdir(output_dir_show))
