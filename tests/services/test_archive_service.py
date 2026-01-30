@@ -43,6 +43,87 @@ def test_fetch_and_process_whrb_archive_dry_run():
     mock_process.assert_called_once()
 
 
+def test_fetch_and_process_whrb_archive_without_cache_dir_uses_temp_cache():
+    config = load_config()
+    with (
+        mock.patch(
+            "whrb_archive.services.archive_service.fetch_program_schedule_calendar",
+            return_value=None,
+        ) as mock_fetch_calendar,
+        mock.patch(
+            "whrb_archive.services.archive_service.fetch_schedule",
+            return_value=[],
+        ),
+        mock.patch(
+            "whrb_archive.services.archive_service.normalize_schedule",
+            return_value=[],
+        ),
+        mock.patch(
+            "whrb_archive.services.archive_service.build_hourly_entries",
+            return_value=[],
+        ),
+        mock.patch(
+            "whrb_archive.services.archive_service._process_hourly_entries"
+        ) as mock_process,
+        mock.patch(
+            "whrb_archive.services.archive_service.tempfile.TemporaryDirectory"
+        ) as mock_temp,
+    ):
+        mock_temp.return_value.__enter__.return_value = "/tmp/temp-cache"
+        fetch_and_process_whrb_archive(
+            days=1,
+            limit=None,
+            dry_run=True,
+            output_dir="/tmp",
+            cache_dir=None,
+            offline=True,
+            config=config,
+        )
+    mock_temp.assert_called_once()
+    assert mock_fetch_calendar.call_args[0][1] == "/tmp/temp-cache"
+    mock_process.assert_called_once()
+
+
+def test_fetch_and_process_whrb_archive_offline_without_cache_warns(caplog):
+    config = load_config()
+    with (
+        mock.patch(
+            "whrb_archive.services.archive_service.fetch_program_schedule_calendar",
+            return_value=None,
+        ),
+        mock.patch(
+            "whrb_archive.services.archive_service.fetch_schedule",
+            return_value=[],
+        ),
+        mock.patch(
+            "whrb_archive.services.archive_service.normalize_schedule",
+            return_value=[],
+        ),
+        mock.patch(
+            "whrb_archive.services.archive_service.build_hourly_entries",
+            return_value=[],
+        ),
+        mock.patch("whrb_archive.services.archive_service._process_hourly_entries"),
+        mock.patch(
+            "whrb_archive.services.archive_service.tempfile.TemporaryDirectory"
+        ) as mock_temp,
+    ):
+        mock_temp.return_value.__enter__.return_value = "/tmp/temp-cache"
+        fetch_and_process_whrb_archive(
+            days=1,
+            limit=None,
+            dry_run=True,
+            output_dir="/tmp",
+            cache_dir=None,
+            offline=True,
+            config=config,
+        )
+    assert any(
+        "Offline mode requested without a cache directory" in message
+        for message in caplog.messages
+    )
+
+
 def test_process_hourly_entries_skips_existing_file():
     base_config = load_config()
     config = replace(base_config, archive_extension="ts")

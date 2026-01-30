@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4
+- Make cache directory optional with offline warnings in CLI/runtime
+- Increase coverage for error modules
+
 ## 0.1.3
 - Replace assert-true tests with explicit exception assertions
 - Clean up calendar and HLS retry tests

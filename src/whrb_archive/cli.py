@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 
 from .config import load_config
@@ -36,7 +37,9 @@ def parse_args() -> argparse.Namespace:
         help="Directory for saved recordings.",
     )
     parser.add_argument(
-        "--cache-dir", default=config.cache_dir, help="Directory for cached requests."
+        "--cache-dir",
+        default=config.cache_dir,
+        help="Directory for cached requests (omit to disable caching).",
     )
     parser.add_argument(
         "--offline", action="store_true", help="Use cached data only, no network."
@@ -51,11 +54,18 @@ def main() -> None:
     archive download workflow.
     """
     configure_logging()
+    logger = logging.getLogger("whrb-archive")
     args = parse_args()
     config = load_config()
     output_dir = os.path.abspath(args.output_dir)
-    cache_dir = os.path.abspath(args.cache_dir)
-    ensure_directory(cache_dir)
+    cache_dir = os.path.abspath(args.cache_dir) if args.cache_dir else None
+    if cache_dir:
+        ensure_directory(cache_dir)
+    elif args.offline:
+        logger.warning(
+            "Offline mode requested without a cache directory; "
+            "downloads will fail without cached data."
+        )
     fetch_and_process_whrb_archive(
         args.days,
         args.limit,

@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 from datetime import datetime, timedelta, timezone
+import tempfile
 from typing import Optional
 
 import requests
@@ -41,7 +42,7 @@ def fetch_and_process_whrb_archive(
     limit: Optional[int],
     dry_run: bool,
     output_dir: str,
-    cache_dir: str,
+    cache_dir: str | None,
     offline: bool,
     config: ArchiveConfig,
 ) -> None:
@@ -52,65 +53,82 @@ def fetch_and_process_whrb_archive(
         limit: Optional cap on number of shows/hours processed.
         dry_run: When true, log work without downloading.
         output_dir: Target directory for recordings.
-        cache_dir: Directory for cached schedules/playlists/segments.
+        cache_dir: Directory for cached schedules/playlists/segments, or None to
+            disable persistent caching.
         offline: If true, rely on cached data only.
         config: Runtime configuration for the downloader.
     """
-    session = requests.Session()
-    timezone_local = ZoneInfo(config.station_timezone)
-    now_utc = datetime.now(timezone.utc)
-    range_end = now_utc.astimezone(timezone_local)
-    range_start = range_end - timedelta(days=max(days, 1))
 
-    logger.info("Archive range: %s to %s", range_start, range_end)
-    schedule_ical = fetch_program_schedule_calendar(session, cache_dir, offline, config)
-    show_blocks: list[ShowBlock] = []
-    if schedule_ical:
-        raw_blocks = expand_calendar_events(
-            schedule_ical, range_start, range_end, config
-        )
-        show_blocks = build_show_blocks(days, raw_blocks, config, now_utc)
+    def _run_with_cache(cache_root: str) -> None:
+        session = requests.Session()
+        timezone_local = ZoneInfo(config.station_timezone)
+        now_utc = datetime.now(timezone.utc)
+        range_end = now_utc.astimezone(timezone_local)
+        range_start = range_end - timedelta(days=max(days, 1))
 
-    if not show_blocks:
-        logger.warning("Falling back to WHRB schedule API for show names.")
-        schedule_raw = fetch_schedule(
-            session,
-            cache_dir,
-            offline,
-            config,
-            int(now_utc.timestamp()),
+        logger.info("Archive range: %s to %s", range_start, range_end)
+        schedule_ical = fetch_program_schedule_calendar(
+            session, cache_root, offline, config
         )
-        schedule = normalize_schedule(schedule_raw, config)
-        entries = build_hourly_entries(days, schedule, config)
+        show_blocks: list[ShowBlock] = []
+        if schedule_ical:
+            raw_blocks = expand_calendar_events(
+                schedule_ical, range_start, range_end, config
+            )
+            show_blocks = build_show_blocks(days, raw_blocks, config, now_utc)
+
+        if not show_blocks:
+            logger.warning("Falling back to WHRB schedule API for show names.")
+            schedule_raw = fetch_schedule(
+                session,
+                cache_root,
+                offline,
+                config,
+                int(now_utc.timestamp()),
+            )
+            schedule = normalize_schedule(schedule_raw, config)
+            entries = build_hourly_entries(days, schedule, config)
+            if limit:
+                entries = entries[:limit]
+            logger.info("Hourly entries to process: %s", len(entries))
+            _process_hourly_entries(
+                entries,
+                session,
+                cache_root,
+                output_dir,
+                offline,
+                dry_run,
+                config,
+            )
+            return
+
         if limit:
-            entries = entries[:limit]
-        logger.info("Hourly entries to process: %s", len(entries))
-        _process_hourly_entries(
-            entries,
-            session,
-            cache_dir,
-            output_dir,
-            offline,
-            dry_run,
-            config,
-        )
-        return
+            show_blocks = show_blocks[:limit]
 
-    if limit:
-        show_blocks = show_blocks[:limit]
+        logger.info("Show blocks to process: %s", len(show_blocks))
+        for block in show_blocks:
+            _process_show_block(
+                block,
+                session,
+                cache_root,
+                output_dir,
+                offline,
+                dry_run,
+                config,
+                timezone_local,
+            )
 
-    logger.info("Show blocks to process: %s", len(show_blocks))
-    for block in show_blocks:
-        _process_show_block(
-            block,
-            session,
-            cache_dir,
-            output_dir,
-            offline,
-            dry_run,
-            config,
-            timezone_local,
-        )
+    if cache_dir:
+        _run_with_cache(cache_dir)
+    else:
+        if offline:
+            logger.warning(
+                "Offline mode requested without a cache directory; "
+                "downloads will fail without cached data."
+            )
+        logger.info("Caching disabled; using temporary cache directory.")
+        with tempfile.TemporaryDirectory() as temp_cache:
+            _run_with_cache(temp_cache)
 
 
 def _process_hourly_entries(

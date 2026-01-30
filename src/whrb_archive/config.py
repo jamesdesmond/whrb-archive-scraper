@@ -12,7 +12,7 @@ def load_config() -> ArchiveConfig:
     """Load runtime configuration from defaults and environment variables."""
     return ArchiveConfig(
         output_dir="./recordings",
-        cache_dir="./cache",
+        cache_dir=None,
         archive_days=14,
         archive_extension="mp3",
         ffmpeg_path=os.getenv("FFMPEG_PATH", "ffmpeg"),

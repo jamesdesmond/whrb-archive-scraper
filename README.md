@@ -50,7 +50,7 @@ Or run via the CLI entrypoint:
 whrb-archive
 ```
 
-Configure output and cache directories:
+Configure output and cache directories (caching is optional):
 
 ```bash
 python main.py --output-dir ./recordings --cache-dir ./cache
@@ -71,7 +71,7 @@ python main.py --output-dir ./recordings --cache-dir ./cache
 Edit `config.py` or use command-line arguments:
 
 - `--output-dir`: where to save recordings (default: `./recordings`)
-- `--cache-dir`: where to store temporary data (default: `./cache`)
+- `--cache-dir`: where to store cached data (omit to disable caching)
 - `--days`: how many days to scan (default: 14, the FCC maximum)
 
 Optional environment variables:
@@ -126,9 +126,9 @@ This will automatically format code before each commit.
 
 ### Caching
 
-The script caches schedule data and audio segments to avoid redundant downloads during testing and development. Cached data is reused automatically.
+The script caches schedule data and audio segments to avoid redundant downloads during testing and development. Cached data is reused automatically when you pass `--cache-dir`.
 
-Run in offline mode (uses only cached data):
+Run in offline mode (uses only cached data, so `--cache-dir` is required):
 
 ```bash
 python main.py --offline
@@ -137,7 +137,7 @@ python main.py --offline
 ### Troubleshooting
 
 - **ffmpeg not found**: install ffmpeg and ensure it's on your PATH, or set `FFMPEG_PATH`.
-- **Schedule fetch fails**: delete `cache/program_schedule.ics` to force refresh.
+- **Schedule fetch fails**: delete `<cache_dir>/program_schedule.ics` to force refresh (when caching is enabled).
 - **Slow downloads**: check network bandwidth and consider reducing `--days`.
 
 ### Tests

@@ -12,7 +12,7 @@ class ArchiveConfig:
     """Runtime configuration for archive downloads."""
 
     output_dir: str
-    cache_dir: str
+    cache_dir: str | None
     archive_days: int
     archive_extension: str
     ffmpeg_path: str
