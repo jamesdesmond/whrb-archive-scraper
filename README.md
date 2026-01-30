@@ -32,10 +32,22 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
+Install as a package (recommended for CLI usage):
+
+```bash
+pip install -e .
+```
+
 Run the downloader:
 
 ```bash
 python main.py
+```
+
+Or run via the CLI entrypoint:
+
+```bash
+whrb-archive
 ```
 
 Configure output and cache directories:
@@ -77,6 +89,18 @@ This project uses [black](https://github.com/psf/black) for code formatting. For
 black .
 ```
 
+Install developer dependencies:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+Or install the project in editable mode with dev extras:
+
+```bash
+pip install -e ".[dev]"
+```
+
 To enable the pre-commit hook (recommended):
 
 ```bash
@@ -97,6 +121,21 @@ python main.py --offline
 
 ### Tests
 
+Run the test suite:
+
 ```bash
-python -m unittest
+python -m pytest
+```
+
+Run tests with coverage:
+
+```bash
+python -m pytest --cov=whrb_archive --cov-report=term-missing
+```
+## CLI
+
+After installing the package, you can run the CLI directly:
+
+```bash
+whrb-archive --limit 1 --dry-run
 ```

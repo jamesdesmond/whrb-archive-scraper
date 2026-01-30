@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "whrb-archive-scraper"
+version = "0.1.0"
+description = "WHRB stream archive downloader"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "James Desmond" }]
+dependencies = [
+  "requests==2.31.0",
+  "beautifulsoup4==4.12.3",
+  "icalendar==5.0.13",
+  "python-dateutil==2.9.0.post0",
+]
+
+[project.scripts]
+whrb-archive = "whrb_archive.cli:main"
+
+[project.optional-dependencies]
+dev = [
+  "black==24.10.0",
+  "pytest==8.3.4",
+  "pytest-cov==6.0.0",
+  "responses==0.25.3",
+]

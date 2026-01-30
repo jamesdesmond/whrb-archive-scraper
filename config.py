@@ -1,15 +1,35 @@
-import os
+"""Backward-compatible config shim for legacy imports."""
 
-output_dir = "./recordings"
-cache_dir = "./cache"
-archive_days = 14
-archive_extension = "mp3"  # MP3 output (transcoded from HLS segments).
-ffmpeg_path = os.getenv("FFMPEG_PATH", "ffmpeg")
-station_timezone = "America/New_York"
-user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
-base_archive_url = "https://stream.whrb.org/archive"
-schedule_url = "https://api.whrb.org/schedule"
-program_schedule_url = "https://www.whrb.org/programming/program-schedule/"
-request_timeout_seconds = 30
-save_playlist_file = False
-webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
+from whrb_archive.config import load_config
+
+_config = load_config()
+
+output_dir = _config.output_dir
+cache_dir = _config.cache_dir
+archive_days = _config.archive_days
+archive_extension = _config.archive_extension
+ffmpeg_path = _config.ffmpeg_path
+station_timezone = _config.station_timezone
+user_agent = _config.user_agent
+base_archive_url = _config.base_archive_url
+schedule_url = _config.schedule_url
+program_schedule_url = _config.program_schedule_url
+request_timeout_seconds = _config.request_timeout_seconds
+save_playlist_file = _config.save_playlist_file
+webhook_url = _config.webhook_url
+
+__all__ = [
+    "output_dir",
+    "cache_dir",
+    "archive_days",
+    "archive_extension",
+    "ffmpeg_path",
+    "station_timezone",
+    "user_agent",
+    "base_archive_url",
+    "schedule_url",
+    "program_schedule_url",
+    "request_timeout_seconds",
+    "save_playlist_file",
+    "webhook_url",
+]
