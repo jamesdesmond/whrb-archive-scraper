@@ -119,6 +119,18 @@ def test_normalize_schedule_skips_invalid():
     assert len(normalized) == 1
     assert normalized[0].title == "Good"
 
+    def test_normalize_schedule_strips_the_prefix():
+        config = load_config()
+        schedule = [
+            {
+                "startTime": "2025-01-01T10:00:00+00:00",
+                "endTime": "2025-01-01T11:00:00+00:00",
+                "title": "The Record Hospital",
+            }
+        ]
+        normalized = normalize_schedule(schedule, config)
+        assert normalized[0].title == "Record Hospital"
+
 
 def test_normalize_schedule_missing_keys():
     config = load_config()

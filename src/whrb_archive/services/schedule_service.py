@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 
 from ..models.archive import ArchiveConfig, HourlyEntry, ScheduleEntry, ShowBlock
 from ..utils.datetime_utils import week_minute
-from ..utils.filesystem import sanitize_filename
+from ..utils.filesystem import normalize_show_title
 from ..utils.json_cache import read_json, write_json
 
 logger = logging.getLogger("whrb-archive")
@@ -95,7 +95,8 @@ def normalize_schedule(
         except (KeyError, ValueError) as exc:
             logger.warning("Skipping schedule entry due to parse error: %s", exc)
             continue
-        title = sanitize_filename(str(entry.get("title", "Unknown Program")).strip())
+        raw_title = str(entry.get("title", "Unknown Program")).strip()
+        title = normalize_show_title(raw_title)
         start_local = start.astimezone(timezone_local)
         end_local = end.astimezone(timezone_local)
         normalized.append(
@@ -152,7 +153,7 @@ def build_hourly_entries(
         hour_local = hour_utc.astimezone(timezone_local)
         file_name = hour_utc.strftime("%Y_%m_%d_%H")
         program_datetime = hour_local
-        program_name = sanitize_filename(find_show_for_hour(hour_local, schedule))
+        program_name = normalize_show_title(find_show_for_hour(hour_local, schedule))
         entries.append(
             HourlyEntry(
                 file_name=file_name,

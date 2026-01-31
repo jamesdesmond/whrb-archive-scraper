@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.6
+- Fix duplicate show folders by normalizing titles (strip leading "The ")
+- Prevent shows like "The Record Hospital" from creating separate folders
+
 ## 0.1.5
 - Exit with non-zero status when ffmpeg/transcoding fails
 - Improve CLI error messaging for archive failures

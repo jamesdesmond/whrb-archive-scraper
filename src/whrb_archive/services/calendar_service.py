@@ -15,7 +15,7 @@ from zoneinfo import ZoneInfo
 
 from ..models.archive import ArchiveConfig, ShowBlock
 from ..utils.datetime_utils import ensure_datetime
-from ..utils.filesystem import ensure_directory, sanitize_filename
+from ..utils.filesystem import ensure_directory, normalize_show_title
 from ..utils.retry import RetryConfig, retry
 
 logger = logging.getLogger("whrb-archive")
@@ -115,9 +115,8 @@ def expand_calendar_events(
     blocks: list[ShowBlock] = []
     seen: set[tuple[str, datetime, datetime]] = set()
     for component in calendar.walk("VEVENT"):
-        summary = sanitize_filename(
-            str(component.get("summary", "Unknown Program")).strip()
-        )
+        raw_summary = str(component.get("summary", "Unknown Program")).strip()
+        summary = normalize_show_title(raw_summary)
         dtstart = ensure_datetime(component.get("dtstart").dt, timezone_local)
         dtend = ensure_datetime(component.get("dtend").dt, timezone_local)
         duration = dtend - dtstart
